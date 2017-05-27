@@ -49,20 +49,6 @@ public class Engine {
 		random = new Random();
 		initialise();
 		
-		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                if (event.getCode() == KeyCode.ENTER){
-                	Optional<ButtonType> op = new Alert(AlertType.CONFIRMATION,"Are you sure you're finished setting the seed?").showAndWait();
-                	if (op.isPresent()){
-                		if (op.get().equals(ButtonType.OK)){
-                			seedable = false;
-                		}
-                	}
-                }
-            }
-        });
-		
 	}
 	
 	private void initialise(){
@@ -90,6 +76,82 @@ public class Engine {
 				root.getChildren().add(tile);
 			}
 		}
+		
+		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode() == KeyCode.ENTER){
+                	Optional<ButtonType> op = new Alert(AlertType.CONFIRMATION,"Are you sure you're finished setting the seed?").showAndWait();
+                	if (op.isPresent()){
+                		if (op.get().equals(ButtonType.OK)){
+                			seedable = false;
+                			start();
+                		}
+                	}
+                }
+                else if (event.getCode() == KeyCode.TAB){ //For debugging.
+                	if (seedable)
+                	for (Tile tile: grid.values()){
+                		tile.setAlive(false);
+                	}
+                }
+            }
+        });
+	}
+	
+	/**
+	 * Starts the game, when the user is finished seeding. 
+	 */
+	private void start(){
+		int tilesChanged = 0;
+		Position pos;
+		
+		Tile current;
+		Tile check; //The neighbour being checked.
+		
+		int alive = 0; //Number of living neighbours that "current" has. Starts at -1 since they count themselves.
+		do { //Main simulation loop.
+			tilesChanged = 0;
+			for (int y = 0; y < tilesDown; y++){
+				for (int x = 0; x < tilesAcross; x++){
+					pos = new Position(x,y);
+					
+					Optional<Tile> op = getTileAt(pos);
+					if (op.isPresent()){
+						current = op.get();
+						for (int yDelta = -1; yDelta < 2; yDelta++){
+							for (int xDelta = -1; xDelta < 2; xDelta++){
+								op = getTileAt(new Position(x+xDelta,y+yDelta));
+								if (op.isPresent()){
+									check = op.get();
+									if ((check.isAlive()) && !(check.equals(current))){
+										alive++;
+									}
+								}
+								else{
+									continue;
+								}
+							}
+						}
+						current.react(alive);
+					}
+					alive = 0;
+				}
+			}
+			for (Tile tile: grid.values()){
+				tilesChanged += ( (tile.isNewAlive() == tile.isAlive()) ? 0 : 1 );
+				tile.setAlive(tile.isNewAlive()); //Changes states accordingly.
+			}
+		} while (tilesChanged > 0);
+	}
+	
+	/**
+	 * Returns an Optional containing either the tile at the specified position or null if it doesn't exist.
+	 * @param pos The position to check.
+	 * @return
+	 */
+	private Optional<Tile> getTileAt(Position pos){
+		return Optional.ofNullable(grid.get(pos));
 	}
 	
 }

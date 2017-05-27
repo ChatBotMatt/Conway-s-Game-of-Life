@@ -1,5 +1,7 @@
 package application;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -16,6 +18,7 @@ public class Tile extends ImageView{
 	//private ImageView tileView;
 	
 	private boolean alive; //Whether the Tile is alive or dead.
+	private boolean newAlive; //The state of the Tile, next iteration.
 	private Position position;
 	
 	/**
@@ -23,9 +26,13 @@ public class Tile extends ImageView{
 	 * @param alive True, if the Tile is initially alive (green). 
 	 */
 	public Tile(boolean alive, Position pos){
-		this.alive = alive;
-		setImageByAlive();
+		setAlive(alive);
+		this.newAlive = alive;
 		this.position = pos;
+	}
+	
+	public Tile(boolean alive, int x, int y){
+		this(alive,new Position(x,y));
 	}
 	
 	/**
@@ -40,8 +47,40 @@ public class Tile extends ImageView{
 		setAlive(!alive);
 	}
 	
-	public Tile(boolean alive, int x, int y){
-		this(alive,new Position(x,y));
+	/**
+	 * Changes newAlive (if apt) based on how many neighbours are living.
+	 * @param livingNeighbours How many of the tile's neighbours are alive.
+	 * @return newAlive after reacting.
+	 */
+	public boolean react(int livingNeighbours){
+		
+		/**
+		 * At each step in time, the following transitions occur:
+
+			Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
+			Any live cell with two or three live neighbours lives on to the next generation.
+			Any live cell with more than three live neighbours dies, as if by overpopulation.
+			Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+		 */
+		
+		if (alive){
+			if ((livingNeighbours < 2) || (livingNeighbours > 3)){
+				newAlive = false;
+			}
+			else{
+				newAlive = true;
+			}
+		}
+		else{
+			if (livingNeighbours == 3){
+				newAlive = true;
+			}
+			else{
+				newAlive = false;
+			}
+		}
+		
+		return newAlive;
 	}
 
 	public boolean isAlive() {
@@ -55,6 +94,10 @@ public class Tile extends ImageView{
 	public void setAlive(boolean alive) {
 		this.alive = alive;
 		setImageByAlive();
+	}
+	
+	public boolean isNewAlive(){
+		return newAlive;
 	}
 
 	public Position getPosition() {

@@ -8,7 +8,6 @@ public class Main extends Application {
 	
 	private Engine engine;
 	
-	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
