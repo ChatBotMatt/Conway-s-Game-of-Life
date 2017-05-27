@@ -17,14 +17,11 @@ import javafx.stage.Stage;
 
 public class Engine {
 	
-	public static final int tileWidth = 32;
-	public static final int tileHeight = 32;
+	public static final double tileWidth = 50;//Tile.tileActive.getWidth();
+	public static final double tileHeight = 50;//Tile.tileActive.getHeight();
 	
-	private static final int width = 400; //Note: Rounded down to nearest multiple of tileWidth and tileHeight respectively.
-	private static final int height = 400;
-	
-	private static final int tilesAcross = width/tileWidth;
-	private static final int tilesDown = height/tileHeight;
+	private static final int tilesAcross = 10;
+	private static final int tilesDown = 10;
 	
 	private Scene scene;
 	private TilePane root;
@@ -36,11 +33,8 @@ public class Engine {
 	
 	public Engine(Stage primaryStage){
 		
-		double roundedWidth = Math.floor(tileWidth*tilesAcross);
-		double roundedHeight = Math.floor(tileHeight*tilesDown);
-		
 		root = new TilePane();
-		scene = new Scene(root,roundedWidth,roundedHeight);
+		scene = new Scene(root,tilesAcross*tileWidth,tilesDown*tileHeight);
 		scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		primaryStage.setScene(scene);
 		primaryStage.show();
@@ -55,22 +49,24 @@ public class Engine {
 		Position pos;
 		Tile tile;
 		
+		EventHandler<MouseEvent> handler = new EventHandler<MouseEvent>() { //Tiles are initially toggleable, to act as a visual "seed".
+
+		     @Override
+		     public void handle(MouseEvent event) {
+		    	 Tile tile = (Tile) event.getSource();
+		    	 if (seedable){
+		    		 tile.toggleAlive();
+		    	 }         
+		         event.consume(); //Stops the event from propagating up to the scene containing it.
+		     }
+		};
+		
 		for (int y = 0; y < tilesDown; y++){
 			for (int x = 0; x < tilesAcross; x++){
 				pos = new Position(x,y);
 				tile = new Tile(random.nextBoolean(),pos);
 				
-				tile.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() { //Tiles are initially toggleable, to act as a visual "seed".
-
-				     @Override
-				     public void handle(MouseEvent event) {
-				    	 Tile tile = (Tile) event.getSource();
-				    	 if (seedable){
-				    		 tile.toggleAlive();
-				    	 }         
-				         event.consume(); //Stops the event from propagating up to the scene containing it.
-				     }
-				});
+				tile.addEventHandler(MouseEvent.MOUSE_CLICKED, handler); 
 				
 				grid.put(pos, tile);
 				root.getChildren().add(tile);
@@ -85,6 +81,9 @@ public class Engine {
                 	if (op.isPresent()){
                 		if (op.get().equals(ButtonType.OK)){
                 			seedable = false;
+                			for (Tile tile: grid.values()){
+                				tile.removeEventHandler(MouseEvent.MOUSE_CLICKED, handler);
+                			}
                 			start();
                 		}
                 	}
@@ -141,6 +140,11 @@ public class Engine {
 			for (Tile tile: grid.values()){
 				tilesChanged += ( (tile.isNewAlive() == tile.isAlive()) ? 0 : 1 );
 				tile.setAlive(tile.isNewAlive()); //Changes states accordingly.
+			}
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		} while (tilesChanged > 0);
 	}

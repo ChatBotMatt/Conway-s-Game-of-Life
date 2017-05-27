@@ -1,8 +1,5 @@
 package application;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -13,8 +10,8 @@ import javafx.scene.image.ImageView;
  */
 public class Tile extends ImageView{
 
-	private static final Image tileActive = new Image("assets/Active Tile.png");
-	private static final Image tileInactive = new Image("assets/Inactive Tile.png");
+	public static final Image tileActive = new Image("assets/Active Tile.png");
+	public static final Image tileInactive = new Image("assets/Inactive Tile.png");
 	//private ImageView tileView;
 	
 	private boolean alive; //Whether the Tile is alive or dead.
@@ -53,7 +50,6 @@ public class Tile extends ImageView{
 	 * @return newAlive after reacting.
 	 */
 	public boolean react(int livingNeighbours){
-		
 		/**
 		 * At each step in time, the following transitions occur:
 
