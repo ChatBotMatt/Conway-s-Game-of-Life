@@ -1,5 +1,6 @@
 package application;
 
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -8,11 +9,11 @@ import javafx.scene.image.ImageView;
  * @author Matthew Maufe
  *
  */
-public class Tile {
+public class Tile extends ImageView{
 
 	private static final Image tileActive = new Image("assets/Active Tile.png");
 	private static final Image tileInactive = new Image("assets/Inactive Tile.png");
-	private ImageView tileView;
+	//private ImageView tileView;
 	
 	private boolean alive; //Whether the Tile is alive or dead.
 	private Position position;
@@ -22,9 +23,8 @@ public class Tile {
 	 * @param alive True, if the Tile is initially alive (green). 
 	 */
 	public Tile(boolean alive, Position pos){
-		this.tileView = new ImageView();
-		setImageByAlive();
 		this.alive = alive;
+		setImageByAlive();
 		this.position = pos;
 	}
 	
@@ -33,20 +33,15 @@ public class Tile {
 	 */
 	private void setImageByAlive(){
 		Image image = (alive) ? tileActive : tileInactive;
-		tileView.setImage(image);
-		this.tileView = new ImageView(image);
+		this.setImage(image);
+	}
+	
+	public void toggleAlive(){
+		setAlive(!alive);
 	}
 	
 	public Tile(boolean alive, int x, int y){
 		this(alive,new Position(x,y));
-	}
-
-	public ImageView getTileView() {
-		return tileView;
-	}
-
-	public void setTileView(ImageView tileView) {
-		this.tileView = tileView;
 	}
 
 	public boolean isAlive() {
@@ -81,7 +76,6 @@ public class Tile {
 		int result = 1;
 		result = prime * result + (alive ? 1231 : 1237);
 		result = prime * result + ((position == null) ? 0 : position.hashCode());
-		result = prime * result + ((tileView == null) ? 0 : tileView.hashCode());
 		return result;
 	}
 
@@ -100,11 +94,6 @@ public class Tile {
 			if (other.position != null)
 				return false;
 		} else if (!position.equals(other.position))
-			return false;
-		if (tileView == null) {
-			if (other.tileView != null)
-				return false;
-		} else if (!tileView.equals(other.tileView))
 			return false;
 		return true;
 	}
