@@ -47,7 +47,7 @@ public class Tile extends ImageView{
 	/**
 	 * Changes newAlive (if apt) based on how many neighbours are living.
 	 * @param livingNeighbours How many of the tile's neighbours are alive.
-	 * @return newAlive after reacting.
+	 * @return True if the tile will change state.
 	 */
 	public boolean react(int livingNeighbours){
 		/**
@@ -76,7 +76,7 @@ public class Tile extends ImageView{
 			}
 		}
 		
-		return newAlive;
+		return (newAlive != alive);
 	}
 
 	public boolean isAlive() {
